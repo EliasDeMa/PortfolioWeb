@@ -20,17 +20,17 @@ namespace PortfolioWeb.Services
         public string AddPhoto(IFormFile photo)
         {
             string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(photo.FileName);
-            var path = Path.Combine(_hostEnvironment.WebRootPath, "expense-pics", uniqueFileName);
+            var path = Path.Combine(_hostEnvironment.WebRootPath, "imgs", uniqueFileName);
 
             using var stream = new FileStream(path, FileMode.Create);
             photo.CopyTo(stream);
 
-            return "/expense-pics/" + uniqueFileName;
+            return "/imgs/" + uniqueFileName;
         }
 
         public void DeletePhoto(string fileName)
         {
-            var prevPath = Path.Combine(_hostEnvironment.WebRootPath, "expense-pics", fileName.Replace("/expense-pics/", ""));
+            var prevPath = Path.Combine(_hostEnvironment.WebRootPath, "imgs", fileName.Replace("/imgs/", ""));
             System.IO.File.Delete(prevPath);
         }
     }

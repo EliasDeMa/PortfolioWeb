@@ -46,6 +46,7 @@ namespace PortfolioWeb.Controllers
             }));
         }
 
+        [Authorize]
         public async Task<IActionResult> Detail(int id)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -62,7 +63,8 @@ namespace PortfolioWeb.Controllers
                 Description = project.Description,
                 StartDate = project.StartDate,
                 Status = project.Status.Description,
-                ProjectTags = project.ProjectTags.Select(item => item.Tag.Name)
+                ProjectTags = project.ProjectTags.Select(item => item.Tag.Name),
+                PhotoUrl = project.PhotoUrl
             };
 
             return View(vm);
@@ -119,6 +121,80 @@ namespace PortfolioWeb.Controllers
             await _portfolioDbContext.SaveChangesAsync();
 
             return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Edit(int id)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var project = await _portfolioDbContext.Projects
+                .Include(proj => proj.ProjectTags)
+                .FirstOrDefaultAsync(item => item.Id == id && item.PortfolioUserId == userId);
+
+            var statuses = await _portfolioDbContext.Statuses.ToListAsync();
+            var tags = await _portfolioDbContext.Tags.ToListAsync();
+
+            var vm = new ProjectEditViewModel
+            {
+                Name = project.Name,
+                SelectedStatus = project.StatusId,
+                Description = project.Description,
+                StartDate = project.StartDate,
+                EndDate = project.EndDate,
+                PhotoUrl = project.PhotoUrl,
+                Statuses = statuses.Select(item => new SelectListItem
+                {
+                    Value = item.Id.ToString(),
+                    Text = item.Description
+                }),
+                Tags = tags.Select(item => new SelectListItem
+                {
+                    Value = item.Id.ToString(),
+                    Text = item.Name,
+                    Selected = project.ProjectTags.Where(tag => tag.TagId == item.Id).Any()
+                })
+            };
+
+            
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ProjectEditViewModel vm)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var project = await _portfolioDbContext.Projects
+                .Include(proj => proj.ProjectTags)
+                .FirstOrDefaultAsync(item => item.Id == id && item.PortfolioUserId == userId);
+
+            _portfolioDbContext.ProjectTags.RemoveRange(project.ProjectTags);
+
+            project.Name = vm.Name;
+            project.Description = vm.Description;
+            project.StartDate = vm.StartDate;
+            project.EndDate = vm.EndDate;
+            project.StatusId = vm.SelectedStatus;
+            project.ProjectTags = vm.SelectedTags.Select(item => new ProjectTag
+            {
+                TagId = item
+            }).ToList();
+
+            if (vm.File != null)
+            {
+                if (!String.IsNullOrEmpty(project.PhotoUrl))
+                    _photoService.DeletePhoto(project.PhotoUrl);
+
+                project.PhotoUrl = _photoService.AddPhoto(vm.File);
+            }
+
+            await _portfolioDbContext.SaveChangesAsync();
+
+            return RedirectToAction("Detail", new { Id = id });
         }
     }
 }
