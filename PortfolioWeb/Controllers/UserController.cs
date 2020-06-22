@@ -35,5 +35,36 @@ namespace PortfolioWeb.Controllers
 
             return View(user);
         }
+
+        [Authorize]
+        public async Task<IActionResult> EditInfo()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var userDb = await _portfolioDbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            var userInfo = new UserEditInfoViewModel
+            {
+                Info = userDb.Description,
+            };
+
+            return View(userInfo);
+        }
+
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> EditInfo(UserEditInfoViewModel vm)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var userDb = await _portfolioDbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            userDb.Description = vm.Info;
+
+            await _portfolioDbContext.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
     }
 }

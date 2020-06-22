@@ -1,0 +1,9 @@
+﻿@model UserEditInfoViewModel
+
+<form asp-controller="User" asp-action="EditInfo" method="post">
+    <div class="form-group">
+        <label asp-for="@Model.Info"></label>
+        <textarea asp-for="@Model.Info" rows="5" cols="40"></textarea>
+    </div>
+    <button class="btn btn-primary">Submit</button>
+</form>
