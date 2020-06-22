@@ -101,8 +101,6 @@ namespace PortfolioWeb.Controllers
                 .Include(x => x.ProjectTags)
                 .Where(x => userId == x.PortfolioUserId);
 
-
-
             if (vm.SelectedStatus != 0)
             {
                 projects = projects.Where(item => item.StatusId == vm.SelectedStatus);
@@ -181,6 +179,25 @@ namespace PortfolioWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProjectCreateViewModel vm)
         {
+            if (!TryValidateModel(vm))
+            {
+                var statuses = await _portfolioDbContext.Statuses.ToListAsync();
+                var tags = await _portfolioDbContext.Tags.ToListAsync();
+
+                vm.Statuses = statuses.Select(item => new SelectListItem
+                {
+                    Value = item.Id.ToString(),
+                    Text = item.Description
+                });
+                vm.Tags = tags.Select(item => new SelectListItem
+                {
+                    Value = item.Id.ToString(),
+                    Text = item.Name
+                });
+
+                return View(vm);
+            }
+
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var project = new Project
@@ -248,6 +265,25 @@ namespace PortfolioWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProjectEditViewModel vm)
         {
+            if (!TryValidateModel(vm))
+            {
+                var statuses = await _portfolioDbContext.Statuses.ToListAsync();
+                var tags = await _portfolioDbContext.Tags.ToListAsync();
+
+                vm.Statuses = statuses.Select(item => new SelectListItem
+                {
+                    Value = item.Id.ToString(),
+                    Text = item.Description
+                });
+                vm.Tags = tags.Select(item => new SelectListItem
+                {
+                    Value = item.Id.ToString(),
+                    Text = item.Name
+                });
+
+                return View(vm);
+            }
+
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var project = await _portfolioDbContext.Projects
