@@ -26,12 +26,10 @@ namespace PortfolioWeb.Controllers
             _photoService = photoService;
         }
 
-        private async Task<ProjectIndexPageViewModel> CreateIndexPageModel(string userId)
+        private async Task<ProjectIndexPageViewModel> CreateIndexPageModel()
         {
             var statuses = await _portfolioDbContext.Statuses.ToListAsync();
             var tags = await _portfolioDbContext.Tags.ToListAsync();
-
-            
 
             var insertStatuses = statuses.Select(item => new SelectListItem
             {
@@ -71,7 +69,7 @@ namespace PortfolioWeb.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var vm = await CreateIndexPageModel(userId);
+            var vm = await CreateIndexPageModel();
 
             var projects = await _portfolioDbContext.Projects
                 .Include(x => x.Status)
@@ -113,7 +111,7 @@ namespace PortfolioWeb.Controllers
 
             var filteredProjects = await projects.ToListAsync();
 
-            var newVm = await CreateIndexPageModel(userId);
+            var newVm = await CreateIndexPageModel();
             newVm.Projects = filteredProjects.Select(item => new ProjectIndexViewModel
             {
                 Id = item.Id,
