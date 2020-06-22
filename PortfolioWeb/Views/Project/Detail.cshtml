@@ -1,0 +1,23 @@
+﻿@model ProjectDetailViewModel
+
+<h2><em>@Model.Name</em></h2>
+
+<strong>Description</strong>
+<p>@Model.Description</p>
+
+<strong>Status</strong>
+<p>@Model.Status</p>
+
+<strong>Start Date</strong>
+<p>@Model.StartDate.ToShortDateString()</p>
+
+<strong>End Date</strong>
+<p>@(Model.EndDate?.ToShortDateString() ?? "No end date yet")</p>
+
+<strong>Tags</strong>
+<ul>
+    @foreach (var item in Model.ProjectTags)
+    {
+        <li>@item</li>
+    }
+</ul>

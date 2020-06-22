@@ -14,7 +14,7 @@ else
                 <th>Name</th>
                 <th>Status</th>
                 <th>StartDate</th>
-                <th>EndDate</th>
+                <th colspan="2">EndDate</th>
             </tr>
         </thead>
         <tbody>
@@ -25,14 +25,15 @@ else
                 <td>@item.Name</td>
                 <td>@item.Status</td>
                 <td>@item.StartDate.ToShortDateString()</td>
-                @if (item.EndDate.HasValue)
-                {
-                    <td>@item.EndDate.Value.ToShortDateString()</td>
-                }
-                else
-                {
-                    <td>No enddate yet.</td>
-                }
+                <td>@(item.EndDate?.ToShortDateString() ?? "No end date yet")</td>
+                <td>
+                    <a asp-controller="Project" 
+                       asp-action="Detail" 
+                       asp-route-id="@item.Id"
+                       class="btn btn-secondary">
+                        Details
+                    </a>
+                </td>
             </tr>
         }
 

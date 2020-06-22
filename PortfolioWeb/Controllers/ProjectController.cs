@@ -46,6 +46,28 @@ namespace PortfolioWeb.Controllers
             }));
         }
 
+        public async Task<IActionResult> Detail(int id)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var project = await _portfolioDbContext.Projects
+                .Include(proj => proj.Status)
+                .Include(proj => proj.ProjectTags)
+                .ThenInclude(pTag => pTag.Tag)
+                .FirstOrDefaultAsync(proj => proj.PortfolioUserId == userId && proj.Id == id);
+
+            var vm = new ProjectDetailViewModel
+            {
+                Name = project.Name,
+                Description = project.Description,
+                StartDate = project.StartDate,
+                Status = project.Status.Description,
+                ProjectTags = project.ProjectTags.Select(item => item.Tag.Name)
+            };
+
+            return View(vm);
+        }
+
         [Authorize]
         public async Task<IActionResult> Create()
         {
