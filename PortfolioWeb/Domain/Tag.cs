@@ -8,6 +8,7 @@ namespace PortfolioWeb.Domain
     public class Tag
     {
         public int Id { get; set; }
-        public int Name { get; set; }
+        public string Name { get; set; }
+        public ICollection<ProjectTag> ProjectTags { get; set; }
     }
 }

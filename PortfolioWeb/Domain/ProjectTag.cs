@@ -1,6 +1,6 @@
 ﻿namespace PortfolioWeb.Domain
 {
-    public class ProjectTags
+    public class ProjectTag
     {
         public int ProjectId { get; set; }
         public Project Project { get; set; }
