@@ -26,24 +26,106 @@ namespace PortfolioWeb.Controllers
             _photoService = photoService;
         }
 
+        private async Task<ProjectIndexPageViewModel> CreateIndexPageModel(string userId)
+        {
+            var statuses = await _portfolioDbContext.Statuses.ToListAsync();
+            var tags = await _portfolioDbContext.Tags.ToListAsync();
+
+            
+
+            var insertStatuses = statuses.Select(item => new SelectListItem
+            {
+                Value = item.Id.ToString(),
+                Text = item.Description
+            }).ToList();
+
+            var insertTags = tags.Select(item => new SelectListItem
+            {
+                Value = item.Id.ToString(),
+                Text = item.Name
+            }).ToList();
+
+
+            insertStatuses.Insert(0, new SelectListItem
+            {
+                Value = "0",
+                Text = "None"
+            });
+
+            insertTags.Insert(0, new SelectListItem
+            {
+                Value = "0",
+                Text = "None"
+            });
+
+            return new ProjectIndexPageViewModel
+            {
+                Statuses = insertStatuses,
+                Tags = insertTags,
+                
+            };
+        }
+
         [Authorize]
         public async Task<IActionResult> Index()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var vm = await CreateIndexPageModel(userId);
 
             var projects = await _portfolioDbContext.Projects
                 .Include(x => x.Status)
                 .Where(x => userId == x.PortfolioUserId)
                 .ToListAsync();
 
-            return View(projects.Select(item => new ProjectIndexViewModel 
-            { 
+            vm.Projects = projects.Select(item => new ProjectIndexViewModel
+            {
                 Id = item.Id,
                 Name = item.Name,
                 Status = item.Status.Description,
                 StartDate = item.StartDate,
                 EndDate = item.EndDate
-            }));
+            });
+
+            return View(vm);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Index(ProjectIndexPageViewModel vm)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var projects = _portfolioDbContext.Projects
+                .Include(x => x.Status)
+                .Include(x => x.ProjectTags)
+                .Where(x => userId == x.PortfolioUserId);
+
+
+
+            if (vm.SelectedStatus != 0)
+            {
+                projects = projects.Where(item => item.StatusId == vm.SelectedStatus);
+            }
+
+            if (vm.SelectedTag != 0)
+            {
+                projects = projects.Where(item => item.ProjectTags.Where(pTags => pTags.TagId == vm.SelectedTag).Any());
+            }
+
+            var filteredProjects = await projects.ToListAsync();
+
+            var newVm = await CreateIndexPageModel(userId);
+            newVm.Projects = filteredProjects.Select(item => new ProjectIndexViewModel
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Status = item.Status.Description,
+                StartDate = item.StartDate,
+                EndDate = item.EndDate
+            });
+
+            return View(newVm);
         }
 
         [Authorize]

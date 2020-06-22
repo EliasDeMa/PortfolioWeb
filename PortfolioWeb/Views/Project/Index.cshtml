@@ -1,8 +1,28 @@
-﻿@model IEnumerable<ProjectIndexViewModel>
+﻿@model ProjectIndexPageViewModel
 
 <h1><em>Projects</em></h1>
 
-@if (Model == null || !Model.Any())
+<div style="margin:10px;background-color:lightgray">
+    <form asp-controller="Project" asp-action="Index" method="post">
+        <div class="form-row">
+            <div class="col-6">
+                <label asp-for="SelectedStatus"></label>
+                @Html.DropDownListFor(model => model.SelectedStatus, new SelectList(Model.Statuses, "Value", "Text"))
+                <span class="text-danger" asp-validation-for="SelectedStatus"></span>
+            </div>
+            <div class="col-3">
+                <label asp-for="SelectedTag"></label>
+                <select asp-for="SelectedTag" asp-items="@Model.Tags"></select>
+                <span class="text-danger" asp-validation-for="SelectedTag"></span>
+            </div>
+            <div class="col">
+                <button class="btn btn-secondary" type="submit">Filter</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (Model.Projects == null || !Model.Projects.Any())
 {
     <p><em>No projects available</em></p>
 }
@@ -19,7 +39,7 @@ else
         </thead>
         <tbody>
 
-        @foreach (var item in Model)
+        @foreach (var item in Model.Projects)
         {
             <tr>
                 <td>@item.Name</td>
