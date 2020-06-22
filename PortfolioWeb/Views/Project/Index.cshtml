@@ -1,0 +1,47 @@
+﻿@model IEnumerable<ProjectIndexViewModel>
+
+<h1><em>Projects</em></h1>
+
+@if (Model == null || !Model.Any())
+{
+    <p><em>No projects available</em></p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>StartDate</th>
+                <th>EndDate</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Status</td>
+                <td>@item.StartDate.ToShortDateString()</td>
+                @if (item.EndDate.HasValue)
+                {
+                    <th>@item.EndDate.Value.ToShortDateString()</th>
+                }
+                else
+                {
+                    <td>No enddate yet.</td>
+                }
+            </tr>
+        }
+
+        </tbody>
+    </table>
+}
+
+<a asp-controller="Project" 
+   asp-action="Create" 
+   class="btn btn-primary">
+    Create
+</a>
