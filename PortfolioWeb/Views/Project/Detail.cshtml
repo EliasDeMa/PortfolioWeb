@@ -2,6 +2,11 @@
 
 <h2><em>@Model.Name</em></h2>
 
+@if (!String.IsNullOrEmpty(Model.PhotoUrl))
+{
+    <p><img src="@Model.PhotoUrl" width="150" /></p>
+}
+
 <strong>Description</strong>
 <p>@Model.Description</p>
 
