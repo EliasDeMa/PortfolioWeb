@@ -1,0 +1,49 @@
+﻿@model ProjectCreateViewModel
+
+    <form asp-action="Create"
+          asp-controller="Project"
+          method="post"
+          enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description"></label>
+            <input asp-for="Description" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="StartDate"></label>
+            <input asp-for="StartDate" class="form-control" type="date" />
+            <span class="text-danger" asp-validation-for="StartDate"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="EndDate"></label>
+            <input asp-for="EndDate" class="form-control" type="date" />
+            <span class="text-danger" asp-validation-for="EndDate"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SelectedStatus"></label>
+            <select asp-for="SelectedStatus" asp-items="@Model.Statuses"></select>
+            <span class="text-danger" asp-validation-for="SelectedStatus"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SelectedTags"></label>
+            <select multiple asp-for="SelectedTags" asp-items="@Model.Tags"></select>
+            <span class="text-danger" asp-validation-for="SelectedTags"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="File"></label>
+            <input asp-for="File" type="file" />
+            <span class="text-danger" asp-validation-for="File"></span>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Enter</button>
+    </form>
