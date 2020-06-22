@@ -1,0 +1,10 @@
+﻿@model ProjectDeleteViewModel
+
+<p><em>Are you sure you want to delete @Model.Name ?</em></p>
+
+<form asp-action="ConfirmDelete"
+      asp-controller="Project"
+      asp-route-id="@Model.Id"
+      method="post">
+    <button class="btn btn-primary" type="submit">Confirm</button>
+</form>

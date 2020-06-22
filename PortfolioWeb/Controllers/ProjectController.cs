@@ -196,5 +196,42 @@ namespace PortfolioWeb.Controllers
 
             return RedirectToAction("Detail", new { Id = id });
         }
+
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var project = await _portfolioDbContext.Projects
+                .Include(proj => proj.ProjectTags)
+                .FirstOrDefaultAsync(item => item.Id == id && item.PortfolioUserId == userId);
+
+            var vm = new ProjectDeleteViewModel
+            {
+                Id = id,
+                Name = project.Name
+            };
+
+            return View(vm);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ConfirmDelete(int id)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var project = await _portfolioDbContext.Projects
+                .Include(proj => proj.ProjectTags)
+                .FirstOrDefaultAsync(item => item.Id == id && item.PortfolioUserId == userId);
+
+            if (!String.IsNullOrEmpty(project.PhotoUrl))
+                _photoService.DeletePhoto(project.PhotoUrl);
+
+            _portfolioDbContext.Projects.Remove(project);
+            await _portfolioDbContext.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
     }
 }
